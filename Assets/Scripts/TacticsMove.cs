@@ -1,0 +1,472 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum TurnState {
+    Start,
+    Move,
+    Attack,
+    End,
+    Waiting
+}
+
+public class TacticsMove : MonoBehaviour
+{
+    public bool turn = false;
+
+    List<Tile> selectableTiles = new List<Tile>();
+    List<Tile> attackableTiles = new List<Tile>();
+    GameObject[] tiles;
+
+    Stack<Tile> path = new Stack<Tile>();
+    public Tile currentTile;
+
+    public bool moving = false;
+    public int moveRange = 5;
+    public int attackRange = 1;
+    public float jumpHeight = 1;
+    public float moveSpeed = 6;
+    public float jumpVelocity = 4.5f;
+
+    public bool hasMoved = false;
+    // public bool hasAttacked = false;
+
+    Vector3 velocity = new Vector3();
+    Vector3 heading = new Vector3();
+
+    protected GameObject m_attackTarget;
+    protected TurnState turnState = TurnState.Waiting;
+
+    float halfHeight = 0;
+
+    // Jumping state machine
+    bool fallingDown = false;
+    bool jumpingUp = false;
+    bool movingEdge = false;
+    Vector3 jumpTarget;
+
+    // Tile right before NPC's target
+    public Tile actualTargetTile;
+
+    protected void Init() {
+        tiles = GameObject.FindGameObjectsWithTag("Tile");
+        halfHeight = GetComponent<Collider>().bounds.extents.y;
+
+        TurnManager.AddUnit(this);
+    }
+
+    public void GetCurrentTile() {
+        currentTile = GetTargetTile(gameObject);
+        currentTile.current = true;
+    }
+
+    // Checks below target with raycast to find tile they're standing on
+    public Tile GetTargetTile(GameObject target) {
+        RaycastHit hit;
+        Tile tile = null;
+
+        if (Physics.Raycast(target.transform.position, -Vector3.up, out hit, 1)) {
+            tile = hit.collider.GetComponent<Tile>();
+        }
+
+        return tile;
+    }
+
+    public void ComputeAdjacencyLists(float jumpHeight, Tile target) {
+        foreach (GameObject tile in tiles) {
+            // For every tile, calculate neighbors forward/back and side to side
+            Tile t = tile.GetComponent<Tile>();
+            t.FindNeighbors(jumpHeight, target);
+        }
+    }
+
+    public void FindSelectableTiles() {
+        ComputeAdjacencyLists(jumpHeight, null);
+        // Raycasts to find the tile underneath unit
+        GetCurrentTile();
+
+        // Queue represents first in first out list
+        Queue<Tile> process = new Queue<Tile>();
+
+        // Adds current tile to front of the queue
+        process.Enqueue(currentTile);
+        currentTile.visited = true;
+
+        // While the queue still has tiles in it
+        while (process.Count > 0) {
+            // Removes tile from queue and assigns it to T
+            Tile t = process.Dequeue();
+
+            // Adds tile to list of selectable tiles and sets Tile component's selectable flag to true turning it red
+            if(!t.attackable) {
+                selectableTiles.Add(t);
+                t.selectable = true;
+            }
+
+            // If the distance to the tile is within units move range
+            if (t.distance < moveRange) {
+                foreach (Tile tile in t.adjacencyList) {
+                    if (!tile.visited) {
+                        tile.parent = t;
+                        tile.visited = true;
+                        tile.distance = 1 + t.distance;
+
+                        process.Enqueue(tile);
+                    }
+                }
+            }
+        }
+    }
+
+    public void FindAttackableTiles() {
+        ComputeAdjacencyLists(jumpHeight, null);
+        GetCurrentTile();
+        
+        Queue<Tile> process = new Queue<Tile>();
+
+        // Adds current tile to front of the queue
+        process.Enqueue(currentTile);
+        currentTile.visited = true;
+
+        // While the queue still has tiles in it
+        while (process.Count > 0) {
+            // Removes tile from queue and assigns it to T
+            Tile t = process.Dequeue();
+
+            // Adds tile to list of selectable tiles and sets Tile component's selectable flag to true turning it red
+            // if(!t.attackable) {
+            //     selectableTiles.Add(t);
+            //     t.selectable = true;
+            // }
+
+            attackableTiles.Add(t);
+            t.attackable = true;
+
+            // If the distance to the tile is within units move range
+            if (t.distance <  attackRange) {
+                foreach (Tile tile in t.attackAdjacencyList) {
+                    if (!tile.visited) {
+                        tile.parent = t;
+                        tile.visited = true;
+                        tile.distance = 1 + t.distance;
+
+                        process.Enqueue(tile);
+                    }
+                }
+            }
+        }
+    }
+
+    public void MoveToTile(Tile tile) {
+        // Clears the path stack (last in first out)
+        path.Clear();
+        tile.target = true;
+        // moving = true;
+        // if(transform.tag != "NPC")
+            turnState = TurnState.Move;
+
+        Tile next = tile;
+
+        // Goes backwards from tile we want to move through and adds them to the path
+        while (next != null) {
+            path.Push(next);
+            next = next.parent;
+        }
+    }
+
+    // Removing until i can figure out how the fuck to make it work
+    // public void MoveToAttack(Tile tile, GameObject attackTarget) {
+    //     m_attackTarget = attackTarget;
+    //     Debug.Log("still getting called");
+    //     MoveToTile(tile);
+    // }
+
+    public void Move() {
+        if (path.Count > 0) {
+            // Gets the tile at the front of the path;
+            Tile t = path.Peek();
+            // sets target to that tile's position
+            Vector3 target = t.transform.position;
+
+            // Adjust target location so that the unit stands on top of the tile instead of inside it
+            target.y += halfHeight + t.GetComponent<Collider>().bounds.extents.y;
+
+            if (Vector3.Distance(transform.position, target) >= 0.05f) {
+
+                // if target and unit are not on the same y level do a jump
+                bool jump = transform.position.y != target.y;
+
+                if (jump) {
+                    Jump(target);
+                } else {
+                    CalculateHeading(target);
+                    SetHorizontalVelocity();
+                }
+
+                // Locomotion
+                transform.forward = heading;
+                transform.position += velocity * Time.deltaTime;
+
+            } else {
+                // Tile center reached
+                transform.position = target;
+                path.Pop();
+            }
+        } else { // We are out of tiles in the path, aka at the target tile
+            RemoveSelectableTiles();
+            moving = false;
+            hasMoved = true;
+            turnState = TurnState.Attack;
+
+            if(m_attackTarget != null)
+                FaceTarget(m_attackTarget.transform);
+
+            // Move this in the future when adding combat
+            // Currently ends turn after movement is completed
+            // if (hasAttacked) {
+            // TurnManager.EndTurn();
+            // }
+        }
+    }
+
+    protected void RemoveSelectableTiles() {
+
+        if (currentTile != null) {
+            currentTile.current = false;
+            currentTile = null;
+        }
+
+        foreach(Tile tile in selectableTiles) {
+            tile.Reset();
+        }
+
+        selectableTiles.Clear();
+    }
+
+    protected void RemoveAttackableTiles() {
+        if (currentTile != null) {
+            currentTile.current = false;
+            currentTile = null;
+        }
+
+        foreach(Tile tile in attackableTiles) {
+            tile.Reset();
+        }
+
+        attackableTiles.Clear();
+    }
+
+    void CalculateHeading(Vector3 target) {
+        heading = target - transform.position;
+        heading.Normalize();
+    }
+
+    protected void FaceTarget(Transform targetTransform) {
+        Debug.Log("Facing target");
+        Quaternion targetRotation = Quaternion.LookRotation(targetTransform.position - transform.position);
+        Quaternion rotationOnlyY = Quaternion.Euler(transform.rotation.eulerAngles.x, targetRotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+
+        // Eventually I'd like a smooth rotation but theres something preventing it from finishing at the moment
+        // transform.rotation = Quaternion.Lerp (transform.rotation, targetRotation, .5f);
+        transform.rotation = rotationOnlyY;
+    }
+
+    void SetHorizontalVelocity() {
+        velocity = heading * moveSpeed;
+    }
+
+    void Jump(Vector3 target) {
+        if(fallingDown) {
+            FallDownward(target);
+        } else if (jumpingUp) {
+            JumpUpward(target);
+        } else if (movingEdge) {
+            MoveToEdge();
+        } else {
+            PrepareJump(target);
+        }
+    }
+
+    void PrepareJump(Vector3 target) {
+        float targetY = target.y;
+
+        // Makes sure character stays upright
+        target.y = transform.position.y;
+
+        CalculateHeading(target);
+
+        // if unit is higher than target
+        if (transform.position.y > targetY) {
+            fallingDown = false;
+            jumpingUp = false;
+            movingEdge = true;
+
+            // halfway point between unit and target aka the edge
+            jumpTarget =  transform.position + (target - transform.position) / 2.0f;
+        } else { // if unit is lower than target
+            fallingDown = false;
+            jumpingUp = true;
+            movingEdge = false;
+
+            velocity = heading * moveSpeed / 3.0f;
+
+            float difference = targetY - transform.position.y;
+
+            velocity.y = jumpVelocity * (0.5f + difference / 2.0f);
+        }
+    }
+
+    void FallDownward(Vector3 target) {
+        velocity += Physics.gravity * Time.deltaTime;
+
+        if (transform.position.y <= target.y) {
+
+            // Set all state values to false just in case, as after falling no more jumping logic happens
+            fallingDown = false;
+            movingEdge = false;
+            jumpingUp = false;
+
+            Vector3 p = transform.position;
+            p.y = target.y;
+            transform.position = p;
+
+            velocity = new Vector3();
+        }
+    }
+
+    void JumpUpward(Vector3 target) {
+        velocity += Physics.gravity * Time.deltaTime;
+
+        if (transform.position.y > target.y) {
+            jumpingUp = false;
+            fallingDown = true;
+        }
+    }
+
+    void MoveToEdge() {
+        if (Vector3.Distance(transform.position, jumpTarget) >= 0.05f) {
+            SetHorizontalVelocity();
+        } else {
+            movingEdge = false;
+            fallingDown = true;
+
+            velocity /= 5.0f;
+            velocity.y = 1.5f;
+        }
+    }
+
+    public void BeginTurn() {
+        // turn = true;
+        turnState = TurnState.Start;
+    }
+
+    public void EndTurn() {
+        // turn = false;
+        turnState = TurnState.Waiting;
+    }
+
+    public virtual void Attack(GameObject target) {
+        //
+    }
+
+    protected Tile FindLowestF(List<Tile> list) {
+        Tile lowest = list[0];
+
+        foreach(Tile t in list) {
+            if (t.f < lowest.f) {
+                lowest = t;
+            }
+        }
+
+        list.Remove(lowest);
+
+        return lowest;
+    }
+
+    // Gets the tile right before the target
+    protected Tile FindEndTile(Tile t) {
+        Stack<Tile> tempPath = new Stack<Tile>();
+
+        Tile next = t.parent;
+
+        while (next != null) {
+            tempPath.Push(next);
+            next = next.parent;
+        }
+
+        if (tempPath.Count <= moveRange) {
+            return t.parent;
+        }
+
+        Tile endTile = null;
+
+        for (int i = 0; i < moveRange; i++) {
+            endTile = tempPath.Pop();
+        }
+
+        return endTile;
+    }
+
+    // A* pathfinding for NPC
+    protected void FindPath(Tile target) {
+        ComputeAdjacencyLists(jumpHeight, target);
+        GetCurrentTile();
+
+        List<Tile> openList = new List<Tile>();
+        List<Tile> closedList = new List<Tile>();
+
+        openList.Add(currentTile);
+        
+        currentTile.h = Vector3.Distance(currentTile.transform.position, target.transform.position);
+        currentTile.f = currentTile.h;
+
+        while (openList.Count > 0) {
+            // Get the tile with the lowest f value
+            Tile t = FindLowestF(openList);
+
+            // add tile to closedList after it has been processed
+            closedList.Add(t);
+
+            // if t is the target tile, we exit (success condition)
+            if (t == target) {
+                // This is where we set variables for attacking the player
+                actualTargetTile = FindEndTile(t);
+                MoveToTile(actualTargetTile);
+                return;
+            }
+            
+            // if t is not the target, we look through all of the adjacent tiles
+            foreach(Tile tile in t.adjacencyList) {
+                if (closedList.Contains(tile)) {
+                    // do nothing, tile has already been processed
+                } else if (openList.Contains(tile)) {
+                    // we have to check if the path through this tile is faster than the path we have already
+                    float tempG = t.g + Vector3.Distance(tile.transform.position, t.transform.position);
+                    
+                    if (tempG < tile.g) {
+                        // we have found a faster way
+                        tile.parent = t;
+
+                        tile.g = tempG;
+                        tile.f = tile.g + tile.h;
+                    }
+                } else {
+                    // since this tile is on neither list it is the first time we've seen this node
+                    // set parent of this tile to t, which is the tile whose adjacencyList we are currently looking through
+                    tile.parent = t;
+
+                    // calculate costs for this node
+                    tile.g = t.g + Vector3.Distance(tile.transform.position, t.transform.position);
+                    tile.h = Vector3.Distance(tile.transform.position, target.transform.position);
+                    tile.f = tile.h + tile.g;
+
+                    // Adds tile to openList for potential processing
+                    openList.Add(tile);
+                }
+            }
+        }
+
+        // TODO: what to do if there is no path to target tile?
+        
+    }
+}

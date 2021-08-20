@@ -1,0 +1,38 @@
+THIS VERSION IS 2019.1.1
+----------------------
+
+Upgrading from SpriteMan 3D 2017.1+
+
+- Delete the SpriteMan3D folder from your project.
+- Import the new SpriteMan3D asset package. (If you upgraded without deleting the existing folder first, please do so now and continue this guide after deleting and reimporting the package.)
+
+- NOTE: any custom changes you made to SpriteMan 3D scripts will be overriden! You're on your own with those... :)
+
+---
+
+Upgrading from SpriteMan 3D Free (pre 2017.1)
+
+WARNING! THIS UPGRADE PATH HAS BREAKING CHANGES!
+
+- Delete the SpriteMan3D folder from your project.
+- Import the new SpriteMan3D asset package. (If you upgraded without deleting the existing folder first, please do so now and continue this guide after deleting and reimporting the package.)
+- For managed sprite models you created in your project the STATES WILL BE IN A CORRUPTED STATE! You will have to reset some settings.
+  - Go through each of your sprite models. E,S,W will be empty when editing.
+  - Set the affected object to debug mode (top right context menu on Inspector).
+  - Find the affected directions in Sprite Manager States. ex: State Mapping > Element 0 > Directions > Element 0 > Direction
+  - The directions for each state will show up in this order: N, NNE, NE, ENE
+  - Set the correct missing directions: change NNE, NE, ENE to E, S, W
+- Go through each animator animation you created in your project for managed sprite models. 
+  You must add the 'Sprite Manager : Current State Index' property to animations with the correct indexes of each State in your SpriteManager.
+- Everything should now work normally.
+
+Upgrading from SpriteMan 3D (pre 2017.1)
+
+- Delete the SpriteMan3D folder from your project.
+- Import the new SpriteMan3D asset package. (If you upgraded without deleting the existing folder first, please do so now and continue this guide after deleting and reimporting the package.)
+- You will not have to worry about modifying Sprite Manager States.
+- Go through each animator animation you created in your project for managed sprite models. 
+  You must add the 'Sprite Manager : Current State Index' property to animations with the correct indexes of each State in your SpriteManager.
+- Everything should now work normally.
+
+- NOTE: any custom changes you made to SpriteMan 3D scripts will be overriden! You're on your own with those... :)

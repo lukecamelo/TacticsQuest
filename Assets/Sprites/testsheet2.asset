@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60fafcc88baa17446a37487493490d1c, type: 3}
+  m_Name: testsheet2
+  m_EditorClassIdentifier: 
+  billboard: 1
+  directionMode: 1
+  reflectionMode: 1
+  stateMapping:
+  - stateName: Idle
+    frameCount: 1
+    directions:
+    - direction: 1
+      frames:
+      - {fileID: 0}
+    - direction: 5
+      frames:
+      - {fileID: 0}
+    - direction: 9
+      frames:
+      - {fileID: 0}
+    - direction: 13
+      frames:
+      - {fileID: 0}
+  - stateName: Run
+    frameCount: 4
+    directions:
+    - direction: 1
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 5
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 9
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 13
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+  - stateName: Attack
+    frameCount: 3
+    directions:
+    - direction: 1
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 5
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 9
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    - direction: 13
+      frames:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+  - stateName: Jump
+    frameCount: 1
+    directions:
+    - direction: 1
+      frames:
+      - {fileID: 0}
+    - direction: 5
+      frames:
+      - {fileID: 0}
+    - direction: 9
+      frames:
+      - {fileID: 0}
+    - direction: 13
+      frames:
+      - {fileID: 0}
