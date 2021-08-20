@@ -7,6 +7,7 @@ namespace PhatRobit
 	{
 		public Transform target;
 		public float angleY = 35;
+		public float angleX = 35;
 		public float rotationSmoothing = 10;
 		public float rotationSensitivity = 7;
 		public float distance = 10;
@@ -23,6 +24,7 @@ namespace PhatRobit
 			_t = transform;
 			_oldRotation = _t.rotation;
 			_angle.y = angleY;
+			_angle.x = angleX;
 		}
 
 		void Update()
@@ -33,6 +35,7 @@ namespace PhatRobit
 			if(target && Input.GetMouseButton(1))
 			{
 				_angle.x += Input.GetAxis("Mouse X") * rotationSensitivity;
+				_angle.y -= Input.GetAxis("Mouse Y") * rotationSensitivity;
 				RobitTools.ClampAngle(ref _angle);
 			}
 		}

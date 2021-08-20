@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : TacticsMove
 {
@@ -25,8 +26,10 @@ public class PlayerMovement : TacticsMove
 
         switch(turnState) {
             case TurnState.Waiting:
+                UIManager.instance.DisableTurnActionUI();
                 break;
             case TurnState.Start:
+                UIManager.instance.EnableTurnActionUI();
                 FindSelectableTiles();
                 CheckMouse();
                 // possibly need a function for moving unit to tile before enemy if clicking on enemy
@@ -48,7 +51,7 @@ public class PlayerMovement : TacticsMove
     }
 
     void CheckMouse() {
-        if (Input.GetMouseButtonUp(0)) {
+        if (Input.GetMouseButtonUp(0) && !IsPointerOverUIObject()) {
             SetCurrentCamera();
 
             Ray ray = m_currentCamera.ScreenPointToRay(Input.mousePosition);
@@ -69,7 +72,7 @@ public class PlayerMovement : TacticsMove
     }
 
     void CheckMouseForAttack() {
-        if (Input.GetMouseButtonUp(0)) {
+        if (Input.GetMouseButtonUp(0) && !IsPointerOverUIObject()) {
             SetCurrentCamera();
 
             Ray ray = m_currentCamera.ScreenPointToRay(Input.mousePosition);
@@ -92,6 +95,7 @@ public class PlayerMovement : TacticsMove
                         animator.SetTrigger("Attack");
                         Attack(t);
                         RemoveAttackableTiles();
+
                         turnState = TurnState.End;
                     }
 
@@ -120,10 +124,20 @@ public class PlayerMovement : TacticsMove
         // Call target's take damage method
         CharacterStats targetStats = target.GetComponent<CharacterStats>();
         CharacterCombat playerCombat = transform.GetComponent<CharacterCombat>();
+        
         if(playerCombat != null) {
             playerCombat.Attack(targetStats);
         }
-        // targetStats.TakeDamage((int)myStats.attack);
-        // hasAttacked = true;
+    }
+
+    private bool IsPointerOverUIObject() {
+        // Referencing this code for GraphicRaycaster https://gist.github.com/stramit/ead7ca1f432f3c0f181f
+        // the ray cast appears to require only eventData.position.
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        return results.Count > 0;
     }
 }

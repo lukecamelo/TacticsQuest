@@ -35,7 +35,7 @@ public class TacticsMove : MonoBehaviour
     Vector3 heading = new Vector3();
 
     protected GameObject m_attackTarget;
-    protected TurnState turnState = TurnState.Waiting;
+    public TurnState turnState = TurnState.Waiting;
 
     float halfHeight = 0;
 
@@ -51,6 +51,10 @@ public class TacticsMove : MonoBehaviour
     protected void Init() {
         tiles = GameObject.FindGameObjectsWithTag("Tile");
         halfHeight = GetComponent<Collider>().bounds.extents.y;
+
+        // if unit isnt perfectly centered on tile, make it so
+        // this avoids doing jumping animations at the beginning of movement 
+        CenterOnCurrentTile();
 
         TurnManager.AddUnit(this);
     }
@@ -161,9 +165,8 @@ public class TacticsMove : MonoBehaviour
         // Clears the path stack (last in first out)
         path.Clear();
         tile.target = true;
-        // moving = true;
-        // if(transform.tag != "NPC")
-            turnState = TurnState.Move;
+
+        turnState = TurnState.Move;
 
         Tile next = tile;
 
@@ -362,6 +365,9 @@ public class TacticsMove : MonoBehaviour
 
     public void EndTurn() {
         // turn = false;
+        // if (transform.tag == "Player")
+        //     UIManager.instance.DisableTurnActionUI();
+
         turnState = TurnState.Waiting;
     }
 
@@ -407,66 +413,14 @@ public class TacticsMove : MonoBehaviour
         return endTile;
     }
 
-    // A* pathfinding for NPC
-    protected void FindPath(Tile target) {
-        ComputeAdjacencyLists(jumpHeight, target);
-        GetCurrentTile();
+    void CenterOnCurrentTile() {
+        Tile t = GetTargetTile(gameObject);
+        Vector3 target = t.transform.position;
 
-        List<Tile> openList = new List<Tile>();
-        List<Tile> closedList = new List<Tile>();
+        target.y += halfHeight + t.GetComponent<Collider>().bounds.extents.y;
 
-        openList.Add(currentTile);
-        
-        currentTile.h = Vector3.Distance(currentTile.transform.position, target.transform.position);
-        currentTile.f = currentTile.h;
-
-        while (openList.Count > 0) {
-            // Get the tile with the lowest f value
-            Tile t = FindLowestF(openList);
-
-            // add tile to closedList after it has been processed
-            closedList.Add(t);
-
-            // if t is the target tile, we exit (success condition)
-            if (t == target) {
-                // This is where we set variables for attacking the player
-                actualTargetTile = FindEndTile(t);
-                MoveToTile(actualTargetTile);
-                return;
-            }
-            
-            // if t is not the target, we look through all of the adjacent tiles
-            foreach(Tile tile in t.adjacencyList) {
-                if (closedList.Contains(tile)) {
-                    // do nothing, tile has already been processed
-                } else if (openList.Contains(tile)) {
-                    // we have to check if the path through this tile is faster than the path we have already
-                    float tempG = t.g + Vector3.Distance(tile.transform.position, t.transform.position);
-                    
-                    if (tempG < tile.g) {
-                        // we have found a faster way
-                        tile.parent = t;
-
-                        tile.g = tempG;
-                        tile.f = tile.g + tile.h;
-                    }
-                } else {
-                    // since this tile is on neither list it is the first time we've seen this node
-                    // set parent of this tile to t, which is the tile whose adjacencyList we are currently looking through
-                    tile.parent = t;
-
-                    // calculate costs for this node
-                    tile.g = t.g + Vector3.Distance(tile.transform.position, t.transform.position);
-                    tile.h = Vector3.Distance(tile.transform.position, target.transform.position);
-                    tile.f = tile.h + tile.g;
-
-                    // Adds tile to openList for potential processing
-                    openList.Add(tile);
-                }
-            }
+        if (Vector3.Distance(transform.position, target) >= 0.05f) {
+            transform.position = target;
         }
-
-        // TODO: what to do if there is no path to target tile?
-        
     }
 }

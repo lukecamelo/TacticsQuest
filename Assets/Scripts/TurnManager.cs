@@ -21,7 +21,6 @@ public class TurnManager : MonoBehaviour
     }
 
     static void InitTeamTurnQueue() {
-        Debug.Log("INIT TEAM TURN");
         List<TacticsMove> teamList = units[turnKey.Peek()];
 
         foreach(TacticsMove unit in teamList) {
@@ -68,6 +67,10 @@ public class TurnManager : MonoBehaviour
         }
 
         list.Add(unit);
+    }
+
+    public static void SkipUnitMove() {
+        activeUnit.turnState = TurnState.Attack;
     }
 
     public static void RemoveUnit(TacticsMove unit) {
