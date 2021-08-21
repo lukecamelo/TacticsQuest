@@ -74,6 +74,20 @@ public class TurnManager : MonoBehaviour
         activeUnit.turnState = TurnState.Attack;
     }
 
+    public static void ResetUnitTurn() {
+        activeUnit.turnState = TurnState.Start;
+    }
+
+    public static void UndoUnitMove() {
+        PlayerMove playerMove = activeUnit.GetComponent<PlayerMove>();
+
+        playerMove.transform.position = playerMove.startingTile.transform.position;
+        playerMove.transform.position += new Vector3(0f, 1f, 0f);
+
+        activeUnit.CenterOnCurrentTile();
+        activeUnit.turnState = TurnState.Start;
+    }
+
     public static void RemoveUnit(TacticsMove unit) {
         units[unit.tag].Remove(unit);
 

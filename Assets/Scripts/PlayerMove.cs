@@ -9,7 +9,9 @@ public class PlayerMove : TacticsMove
     private Camera[] m_cameras;
     private Camera m_currentCamera;
     private Animator animator;
-    // private GameObject m_attackTarget;
+
+    public Tile startingTile;
+    public bool hasMoved = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +28,11 @@ public class PlayerMove : TacticsMove
         switch(turnState) {
             case TurnState.Waiting:
                 break;
+            // case TurnState.Premove:
+            //     hasMoved = false;
+            //     break;
             case TurnState.Start:
+                startingTile = GetTargetTile(gameObject);
                 // UIManager.instance.EnableTurnActionUI();
                 FindSelectableTiles();
                 CheckMouse();
@@ -34,6 +40,7 @@ public class PlayerMove : TacticsMove
                 break;
             case TurnState.Move:
                 Move();
+                hasMoved = true;
                 break;
             case TurnState.Attack:
                 // Attack functions go here

@@ -11,6 +11,15 @@ public class CharacterCombat : MonoBehaviour
     }
 
     public void Attack(CharacterStats targetStats) {
-        targetStats.TakeDamage(myStats.attack.GetValue());
+        int damage = CalculateDamage(targetStats);
+        targetStats.TakeDamage(damage);
+    }
+
+    private int CalculateDamage(CharacterStats targetStats) {
+        int finalDamage = 0;
+
+        finalDamage += myStats.attack.GetValue() + Random.Range(10, 20);
+
+        return finalDamage;
     }
 }

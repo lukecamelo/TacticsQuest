@@ -12,8 +12,6 @@ public enum TurnState {
 
 public class TacticsMove : MonoBehaviour
 {
-    public bool turn = false;
-
     List<Tile> selectableTiles = new List<Tile>();
     List<Tile> attackableTiles = new List<Tile>();
     GameObject[] tiles;
@@ -21,15 +19,11 @@ public class TacticsMove : MonoBehaviour
     Stack<Tile> path = new Stack<Tile>();
     public Tile currentTile;
 
-    public bool moving = false;
     public int moveRange = 5;
     public int attackRange = 1;
     public float jumpHeight = 1;
     public float moveSpeed = 6;
     public float jumpVelocity = 4.5f;
-
-    public bool hasMoved = false;
-    // public bool hasAttacked = false;
 
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
@@ -137,17 +131,11 @@ public class TacticsMove : MonoBehaviour
             // Removes tile from queue and assigns it to T
             Tile t = process.Dequeue();
 
-            // Adds tile to list of selectable tiles and sets Tile component's selectable flag to true turning it red
-            // if(!t.attackable) {
-            //     selectableTiles.Add(t);
-            //     t.selectable = true;
-            // }
-
             attackableTiles.Add(t);
             t.attackable = true;
 
             // If the distance to the tile is within units move range
-            if (t.distance <  attackRange) {
+            if (t.distance < attackRange) {
                 foreach (Tile tile in t.attackAdjacencyList) {
                     if (!tile.visited) {
                         tile.parent = t;
@@ -217,18 +205,11 @@ public class TacticsMove : MonoBehaviour
             }
         } else { // We are out of tiles in the path, aka at the target tile
             RemoveSelectableTiles();
-            moving = false;
-            hasMoved = true;
 
             if(m_attackTarget != null)
                 FaceTarget(m_attackTarget.transform);
 
             turnState = TurnState.Attack;
-            // Move this in the future when adding combat
-            // Currently ends turn after movement is completed
-            // if (hasAttacked) {
-            // TurnManager.EndTurn();
-            // }
         }
     }
 
@@ -415,7 +396,7 @@ public class TacticsMove : MonoBehaviour
         return endTile;
     }
 
-    void CenterOnCurrentTile() {
+    public void CenterOnCurrentTile() {
         Tile t = GetTargetTile(gameObject);
         Vector3 target = t.transform.position;
 

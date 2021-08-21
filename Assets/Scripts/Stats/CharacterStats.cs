@@ -8,6 +8,7 @@ public class CharacterStats : MonoBehaviour
     public int currentHealth { get; private set; }
     public Stat attack;
     public Stat defense;
+    // public Stat evasion;
 
     public GameObject damageTextPrefab;
 

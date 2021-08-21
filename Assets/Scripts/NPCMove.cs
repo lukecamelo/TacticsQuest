@@ -8,6 +8,7 @@ public class NPCMove : TacticsMove
     GameObject m_target;
     float moveDelay = 1f;
     float attackDelay = 1f;
+    // float endDelay = .5f;
 
     // Start is called before the first frame update
     void Start()
@@ -52,6 +53,11 @@ public class NPCMove : TacticsMove
                 }
                 break;
             case TurnState.End:
+                // if (endDelay > 0)
+                //     endDelay -= Time.deltaTime;
+                // else {
+                //     endDelay = .5f;
+                // }
                 TurnManager.EndTurn();
                 break;
             default:
@@ -103,19 +109,12 @@ public class NPCMove : TacticsMove
         m_target = nearest;
     }
 
-
-    IEnumerator AttackWithDelay(GameObject target) {
-        yield return new WaitForSeconds(.4f);
-        Attack(target);
-    }
-
     public override void Attack(GameObject target) {
         // Call target's take damage method
 
         Tile targetTile = GetTargetTile(target);
         // Debug.Log(targetTile.transform.position);
-
-        if (targetTile.attackable && targetTile.distance == 1) {
+        if (targetTile.attackable && targetTile.distance <= attackRange) {
             CharacterStats targetStats = target.GetComponent<CharacterStats>();
             CharacterCombat npcCombat = transform.GetComponent<CharacterCombat>();
             if(npcCombat != null) {
@@ -145,7 +144,7 @@ public class NPCMove : TacticsMove
 
             // if t is the target tile, we exit (success condition)
             if (t == target) {
-                Debug.Log(t.transform.position);
+
                 Tile currentTile = GetTargetTile(gameObject);
                 // This is where we set variables for attacking the player
                 actualTargetTile = FindEndTile(t);

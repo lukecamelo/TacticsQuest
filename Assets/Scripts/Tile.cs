@@ -36,7 +36,7 @@ public class Tile : MonoBehaviour
             GetComponent<Renderer>().material.color = Color.green;
         } else if (selectable) {
             GetComponent<Renderer>().material.color = Color.red;
-        } else if (attackable && !selectable) {
+        } else if (attackable) {
             GetComponent<Renderer>().material.color = Color.cyan;
         } else {
             GetComponent<Renderer>().material.color = Color.white;

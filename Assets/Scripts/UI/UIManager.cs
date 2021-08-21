@@ -28,9 +28,11 @@ public class UIManager : MonoBehaviour
     public Image turnActionPanel;
     public Canvas screenUICanvas;
     public GameObject player;
+    public CameraController cameraController;
 
     private Vector3 offset = new Vector3(1f, 2f, 0);
     private bool followPlayer = false;
+    // float vanguard = 100;
     // Responsibilites
     
     // Create UI elements
@@ -50,15 +52,14 @@ public class UIManager : MonoBehaviour
             turnActionPanel.transform.position = player.transform.position;
             turnActionPanel.transform.position += offset;
         }
-
     }
 
     public void EnableTurnActionUI() {
         turnActionPanel.gameObject.SetActive(true);
-        followPlayer = true;
+        // followPlayer = true;
 
-        turnActionPanel.transform.position = player.transform.position;
-        turnActionPanel.transform.position += offset;
+        // turnActionPanel.transform.position = player.transform.position;
+        // turnActionPanel.transform.position += offset;
     }
 
     public void DisableTurnActionUI() {
