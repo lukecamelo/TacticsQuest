@@ -23,19 +23,20 @@ public class NPCMove : TacticsMove
                 break;
             case TurnState.Start:
                 // StartCoroutine(PreMoveActions());
-               
+
                 FindNearestTarget();
                 CalculatePath();
                 FindSelectableTiles();
 
                 actualTargetTile.target = true;
+                // Debug.Log("Actual target tile name: " + actualTargetTile.name);
                 break;
             case TurnState.Move:
                 // StartCoroutine(WaitToMove());
                 Move();
                 break;
             case TurnState.Attack:
-                // Add attack functions eventually
+                FindAttackableTiles();
                 // StartCoroutine(AttackWithDelay(m_attackTarget));
                 Attack(m_attackTarget);
                 break;
@@ -56,8 +57,7 @@ public class NPCMove : TacticsMove
         FindSelectableTiles();
 
         actualTargetTile.target = true;
-
-        turnState = TurnState.Move;
+        // turnState = TurnState.Move;
     }
 
     IEnumerator WaitToMove() {
@@ -68,6 +68,7 @@ public class NPCMove : TacticsMove
 
     void CalculatePath() {
         Tile targetTile = GetTargetTile(m_target);
+        Debug.Log("original target tile name: " + targetTile);
         FindPath(targetTile);
     }
 
@@ -92,17 +93,22 @@ public class NPCMove : TacticsMove
 
 
     IEnumerator AttackWithDelay(GameObject target) {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(.4f);
         Attack(target);
     }
 
     public override void Attack(GameObject target) {
         // Call target's take damage method
-        CharacterStats targetStats = target.GetComponent<CharacterStats>();
-        CharacterCombat npcCombat = transform.GetComponent<CharacterCombat>();
 
-        if(npcCombat != null) {
-            npcCombat.Attack(targetStats);
+        Tile targetTile = GetTargetTile(target);
+        // Debug.Log(targetTile.transform.position);
+
+        if (targetTile.attackable && targetTile.distance == 1) {
+            CharacterStats targetStats = target.GetComponent<CharacterStats>();
+            CharacterCombat npcCombat = transform.GetComponent<CharacterCombat>();
+            if(npcCombat != null) {
+                npcCombat.Attack(targetStats);
+            }
         }
 
         turnState = TurnState.End;
@@ -129,17 +135,18 @@ public class NPCMove : TacticsMove
 
             // if t is the target tile, we exit (success condition)
             if (t == target) {
+                Debug.Log(t.transform.position);
                 Tile currentTile = GetTargetTile(gameObject);
                 // This is where we set variables for attacking the player
                 actualTargetTile = FindEndTile(t);
 
                 // If we aren't already there
-                if (actualTargetTile == currentTile) {
-                    Debug.Log("Already there!");
-                    turnState = TurnState.Move;
-                } else {
-                    MoveToTile(actualTargetTile);
-                }
+                MoveToTile(actualTargetTile);
+                // if (actualTargetTile == currentTile) {
+                //     Debug.Log("Already there!");
+                //     turnState = TurnState.Move;
+                // } else {
+                // }
 
                 return;
             }

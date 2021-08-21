@@ -359,11 +359,13 @@ public class TacticsMove : MonoBehaviour
     }
 
     public void BeginTurn() {
+        GameEvents.instance.TurnStart();
         // turn = true;
         turnState = TurnState.Start;
     }
 
     public void EndTurn() {
+        GameEvents.instance.TurnEnd();
         // turn = false;
         // if (transform.tag == "Player")
         //     UIManager.instance.DisableTurnActionUI();
@@ -406,7 +408,7 @@ public class TacticsMove : MonoBehaviour
 
         Tile endTile = null;
 
-        for (int i = 0; i < moveRange; i++) {
+        for (int i = 0; i <= moveRange; i++) {
             endTile = tempPath.Pop();
         }
 

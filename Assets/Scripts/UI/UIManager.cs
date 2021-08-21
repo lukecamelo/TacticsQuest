@@ -38,6 +38,11 @@ public class UIManager : MonoBehaviour
     // Disable UI elements
     // Set relative UI position
 
+    void Start() {
+        GameEvents.instance.onTurnEnd += OnTurnEnd;
+        GameEvents.instance.onTurnStart += OnTurnStart;
+    }
+
     void Update() {
         if(followPlayer) {
             panel.transform.position = player.transform.position;
@@ -51,10 +56,24 @@ public class UIManager : MonoBehaviour
 
         panel.transform.position = player.transform.position;
         panel.transform.position += offset;
-        // panel.transform.SetParent(player.transform);
     }
 
     public void DisableTurnActionUI() {
         panel.gameObject.SetActive(false);
+    }
+
+    private void OnTurnEnd() {
+        // remove the UI
+        DisableTurnActionUI();
+    }
+
+    private void OnTurnStart() {
+        // Get the unit, if its a player, enable the UI and attach it to that player unit
+        GameObject activeUnit = TurnManager.activeUnit.gameObject;
+
+        if (activeUnit.tag == "Player") {
+            player = activeUnit;
+            EnableTurnActionUI();
+        }
     }
 }
