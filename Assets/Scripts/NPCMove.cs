@@ -6,6 +6,8 @@ public class NPCMove : TacticsMove
 {
 
     GameObject m_target;
+    float moveDelay = 1f;
+    float attackDelay = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -22,23 +24,32 @@ public class NPCMove : TacticsMove
             case TurnState.Waiting:
                 break;
             case TurnState.Start:
-                // StartCoroutine(PreMoveActions());
-
                 FindNearestTarget();
                 CalculatePath();
                 FindSelectableTiles();
 
-                actualTargetTile.target = true;
-                // Debug.Log("Actual target tile name: " + actualTargetTile.name);
+                if (moveDelay > 0) {
+                    moveDelay -= Time.deltaTime;
+                } else {
+                    moveDelay = 1f;
+                    actualTargetTile.target = true;
+                    turnState = TurnState.Move;
+                }
+
                 break;
             case TurnState.Move:
-                // StartCoroutine(WaitToMove());
                 Move();
                 break;
             case TurnState.Attack:
                 FindAttackableTiles();
-                // StartCoroutine(AttackWithDelay(m_attackTarget));
-                Attack(m_attackTarget);
+
+                if (attackDelay > 0) {
+                    attackDelay -= Time.deltaTime;
+                } else {
+                    attackDelay = 1f;
+                    Attack(m_attackTarget);
+                    turnState = TurnState.End;
+                }
                 break;
             case TurnState.End:
                 TurnManager.EndTurn();
@@ -52,6 +63,7 @@ public class NPCMove : TacticsMove
     IEnumerator PreMoveActions() {
         yield return new WaitForSeconds(1f);
 
+
         FindNearestTarget();
         CalculatePath();
         FindSelectableTiles();
@@ -63,12 +75,12 @@ public class NPCMove : TacticsMove
     IEnumerator WaitToMove() {
         yield return new WaitForSeconds(.5f);
 
-        Move();
+        turnState = TurnState.Move;
     }
 
     void CalculatePath() {
         Tile targetTile = GetTargetTile(m_target);
-        Debug.Log("original target tile name: " + targetTile);
+
         FindPath(targetTile);
     }
 
@@ -110,8 +122,6 @@ public class NPCMove : TacticsMove
                 npcCombat.Attack(targetStats);
             }
         }
-
-        turnState = TurnState.End;
     }
 
     void FindPath(Tile target) {

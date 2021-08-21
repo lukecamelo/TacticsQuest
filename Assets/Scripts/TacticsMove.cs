@@ -166,7 +166,7 @@ public class TacticsMove : MonoBehaviour
         path.Clear();
         tile.target = true;
 
-        turnState = TurnState.Move;
+        // turnState = TurnState.Move;
 
         Tile next = tile;
 
@@ -219,11 +219,11 @@ public class TacticsMove : MonoBehaviour
             RemoveSelectableTiles();
             moving = false;
             hasMoved = true;
-            turnState = TurnState.Attack;
 
             if(m_attackTarget != null)
                 FaceTarget(m_attackTarget.transform);
 
+            turnState = TurnState.Attack;
             // Move this in the future when adding combat
             // Currently ends turn after movement is completed
             // if (hasAttacked) {

@@ -64,6 +64,7 @@ public class PlayerMove : TacticsMove
                     if (t.selectable) {
                         // move here
                         MoveToTile(t);
+                        turnState = TurnState.Move;
                     }
                 }
             }
