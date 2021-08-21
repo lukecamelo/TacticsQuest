@@ -15,8 +15,7 @@ public class PlayerMove : TacticsMove
     void Start()
     {
         Init();
-
-        animator = transform.GetComponent<Animator>();
+        m_tacticsCamera = FindObjectOfType<TacticsCamera>().transform;
     }
 
     // Update is called once per frame
@@ -92,7 +91,6 @@ public class PlayerMove : TacticsMove
                     // If we are next to enemy
                     if (targetTile.attackable && targetTile.distance == 1) {
                         Debug.Log("Attack");
-                        animator.SetTrigger("Attack");
                         Attack(t);
                         RemoveAttackableTiles();
 

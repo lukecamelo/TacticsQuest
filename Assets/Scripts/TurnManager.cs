@@ -8,7 +8,7 @@ public class TurnManager : MonoBehaviour
     // {"NPC": [NPC1TacticsMove, NPC2TacticsMove], "Player: [PlayerTacticsMove, etc]}
     static Dictionary<string, List<TacticsMove>> units = new Dictionary<string, List<TacticsMove>>();
     // A Queue containg the strings of the names of both teams
-    static Queue<string> turnKey = new Queue<string>();
+    public static Queue<string> turnKey = new Queue<string>();
     // The units making up the team whose turn it is
     public static Queue<TacticsMove> turnTeam = new Queue<TacticsMove>();
     public static TacticsMove activeUnit;

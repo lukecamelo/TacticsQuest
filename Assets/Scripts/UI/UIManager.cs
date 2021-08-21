@@ -25,8 +25,10 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    public Image panel;
+    public Image turnActionPanel;
+    public Canvas screenUICanvas;
     public GameObject player;
+
     private Vector3 offset = new Vector3(1f, 2f, 0);
     private bool followPlayer = false;
     // Responsibilites
@@ -45,21 +47,22 @@ public class UIManager : MonoBehaviour
 
     void Update() {
         if(followPlayer) {
-            panel.transform.position = player.transform.position;
-            panel.transform.position += offset;
+            turnActionPanel.transform.position = player.transform.position;
+            turnActionPanel.transform.position += offset;
         }
+
     }
 
     public void EnableTurnActionUI() {
-        panel.gameObject.SetActive(true);
+        turnActionPanel.gameObject.SetActive(true);
         followPlayer = true;
 
-        panel.transform.position = player.transform.position;
-        panel.transform.position += offset;
+        turnActionPanel.transform.position = player.transform.position;
+        turnActionPanel.transform.position += offset;
     }
 
     public void DisableTurnActionUI() {
-        panel.gameObject.SetActive(false);
+        turnActionPanel.gameObject.SetActive(false);
     }
 
     private void OnTurnEnd() {
@@ -68,6 +71,7 @@ public class UIManager : MonoBehaviour
     }
 
     private void OnTurnStart() {
+        DisplayCurrentTeam();
         // Get the unit, if its a player, enable the UI and attach it to that player unit
         GameObject activeUnit = TurnManager.activeUnit.gameObject;
 
@@ -75,5 +79,10 @@ public class UIManager : MonoBehaviour
             player = activeUnit;
             EnableTurnActionUI();
         }
+    }
+
+    private void DisplayCurrentTeam() {
+        Text text = screenUICanvas.GetComponentInChildren<Text>();
+        text.text = "Active Team: " + TurnManager.turnKey.Peek();
     }
 }
