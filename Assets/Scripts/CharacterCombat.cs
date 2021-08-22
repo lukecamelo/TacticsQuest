@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CharacterCombat : MonoBehaviour
 {
-    CharacterStats myStats;
+    protected CharacterStats myStats;
 
     void Start() {
         myStats = GetComponent<CharacterStats>();

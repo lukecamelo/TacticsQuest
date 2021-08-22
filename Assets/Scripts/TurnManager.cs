@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
+
+// TODO: Maybe turn this into a singleton at some point?
 public class TurnManager : MonoBehaviour
 {
     // {"NPC": [NPC1TacticsMove, NPC2TacticsMove], "Player: [PlayerTacticsMove, etc]}
@@ -12,6 +14,7 @@ public class TurnManager : MonoBehaviour
     // The units making up the team whose turn it is
     public static Queue<TacticsMove> turnTeam = new Queue<TacticsMove>();
     public static TacticsMove activeUnit;
+    public static int turnNumber = 0; 
 
     // Update is called once per frame
     void Update()
@@ -27,11 +30,13 @@ public class TurnManager : MonoBehaviour
         foreach(TacticsMove unit in teamList) {
             turnTeam.Enqueue(unit);
         }
-
+        
+        turnNumber++;
         StartTurn();
     }
 
     public static void StartTurn() {
+        // Debug.Log("Turn number: " + turnNumber);
         if (turnTeam.Count > 0) {
             activeUnit = turnTeam.Peek();
             turnTeam.Peek().BeginTurn();

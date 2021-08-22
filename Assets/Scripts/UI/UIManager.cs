@@ -25,8 +25,11 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
-    public Image turnActionPanel;
     public Canvas screenUICanvas;
+    public Image turnActionPanel;
+    public Image turnNumberPanel;
+    public Image activeTeamPanel;
+
     public GameObject player;
     public CameraController cameraController;
 
@@ -67,6 +70,7 @@ public class UIManager : MonoBehaviour
 
     private void OnTurnStart() {
         DisplayCurrentTeam();
+        DisplayCurrentTurn();
 
         GameObject activeUnit = TurnManager.activeUnit.gameObject;
 
@@ -77,8 +81,13 @@ public class UIManager : MonoBehaviour
     }
 
     private void DisplayCurrentTeam() {
-        Text text = screenUICanvas.GetComponentInChildren<Text>();
+        Text text = activeTeamPanel.GetComponentInChildren<Text>();
         text.text = "Active Team: " + TurnManager.turnKey.Peek();
+    }
+
+    private void DisplayCurrentTurn() {
+        Text text = turnNumberPanel.GetComponentInChildren<Text>();
+        text.text =  "Current turn: " + TurnManager.turnNumber;
     }
 
     public void DisplayActionSelect() {

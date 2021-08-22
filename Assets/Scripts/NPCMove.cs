@@ -75,6 +75,7 @@ public class NPCMove : TacticsMove
         FindPath(targetTile);
     }
 
+    // TODO: add other behaviours such as: target player unit with lowest health, etc
     void FindNearestTarget() {
         GameObject[] targets = GameObject.FindGameObjectsWithTag("Player");
 
@@ -135,12 +136,12 @@ public class NPCMove : TacticsMove
                 actualTargetTile = FindEndTile(t);
 
                 // If we aren't already there
-                MoveToTile(actualTargetTile);
-                // if (actualTargetTile == currentTile) {
-                //     Debug.Log("Already there!");
-                //     turnState = TurnState.Move;
-                // } else {
-                // }
+                if (actualTargetTile == currentTile) {
+                    Debug.Log("Already there!");
+                    turnState = TurnState.Attack;
+                } else {
+                    MoveToTile(actualTargetTile);
+                }
 
                 return;
             }
