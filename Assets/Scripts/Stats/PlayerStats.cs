@@ -11,14 +11,6 @@ public class PlayerStats : CharacterStats
         // Eventual equpment manager stuff
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.T)) {
-            TakeDamage(10);
-        }
-    }
-
     public override void Die() {
         SceneManager.LoadScene("SampleScene");
     }

@@ -5,14 +5,14 @@ using UnityEngine;
 [CreateAssetMenu]
 public class StrongAttackSkill : Skill
 {
-    public float damageMultiplier;
+    public int damageMultiplier;
 
-    public override void Activate(GameObject parent) {
-        int damage = 0;
-        CharacterStats stats = parent.GetComponent<CharacterStats>();
-        CharacterCombat characterCombat = parent.GetComponent<CharacterCombat>();
+    public override void Activate(GameObject parent, GameObject target) {
+        CharacterStats targetStats = target.GetComponent<CharacterStats>();
+        CharacterStats myStats = parent.GetComponent<CharacterStats>();
 
-        damage += stats.attack.GetValue() * 4;
-        // characterCombat.Attack()
+        int damage = myStats.attack.GetValue() + Random.Range(10, 20) * damageMultiplier;
+
+        targetStats.TakeDamage(damage);
     }
 }

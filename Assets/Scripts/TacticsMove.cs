@@ -8,7 +8,8 @@ public enum TurnState {
     Attack,
     End,
     Waiting,
-    ActionSelect
+    ActionSelect,
+    Skill
 }
 
 public class TacticsMove : MonoBehaviour
@@ -374,7 +375,11 @@ public class TacticsMove : MonoBehaviour
     }
 
     public virtual void Attack(GameObject target) {
-        Debug.Log("Attakkkkkk");
+        // nothing
+    }
+
+    public virtual void UseSkill(GameObject target, string skillName) {
+        // nothing for now
     }
 
     protected Tile FindLowestF(List<Tile> list) {

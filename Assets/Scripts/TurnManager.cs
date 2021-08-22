@@ -30,7 +30,7 @@ public class TurnManager : MonoBehaviour
         foreach(TacticsMove unit in teamList) {
             turnTeam.Enqueue(unit);
         }
-        
+
         turnNumber++;
         StartTurn();
     }
@@ -81,6 +81,11 @@ public class TurnManager : MonoBehaviour
 
     public static void SetTurnStateStart() {
         activeUnit.turnState = TurnState.Start;
+    }
+
+    public static void SetTurnStateSkill() {
+        if (activeUnit.tag == "Player")
+            activeUnit.turnState = TurnState.Skill;
     }
 
     public static void UndoUnitMove() {

@@ -8,16 +8,19 @@ public class PlayerMove : TacticsMove
     public Transform m_tacticsCamera;
     private Camera[] m_cameras;
     private Camera m_currentCamera;
-    private Animator animator;
+    private CharacterStats m_myStats;
 
     public Tile startingTile;
     public bool hasMoved = false;
+
+    public Skill[] skills;
 
     // Start is called before the first frame update
     void Start()
     {
         Init();
         m_tacticsCamera = FindObjectOfType<TacticsCamera>().transform;
+        m_myStats = GetComponent<CharacterStats>();
     }
 
     // Update is called once per frame
@@ -39,7 +42,8 @@ public class PlayerMove : TacticsMove
                 UIManager.instance.DisplayStart();
                 // UIManager.instance.EnableTurnActionUI();
                 FindSelectableTiles();
-                CheckMouse();
+                // CheckMouse();
+                GenericCheckMouse("move");
                 // possibly need a function for moving unit to tile before enemy if clicking on enemy
                 break;
 
@@ -54,38 +58,23 @@ public class PlayerMove : TacticsMove
                 UIManager.instance.DisplayAttack();
                 // Attack functions go here
                 FindAttackableTiles();
-                CheckMouseForAttack();
+                // CheckMouseForAttack();
+                GenericCheckMouse("attack");
+                break;
+
+            case TurnState.Skill:
+                FindAttackableTiles();
+                // CheckMouseForSkill();
+                GenericCheckMouse("skill");
                 break;
 
             case TurnState.End:
                 // UIManager.instance.DisableTurnActionUI();
                 TurnManager.EndTurn();
                 break;
-                
+
             default:
                 break;
-        }
-    }
-
-    void CheckMouse() {
-        if (Input.GetMouseButtonUp(0) && !IsPointerOverUIObject()) {
-            SetCurrentCamera();
-
-            Ray ray = m_currentCamera.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit)) {
-                if (hit.collider.tag == "Tile") {
-                    Tile t = hit.collider.GetComponent<Tile>();
-
-                    if (t.selectable) {
-                        // move here
-                        MoveToTile(t);
-                        turnState = TurnState.Moving;
-                    }
-                }
-            }
         }
     }
 
@@ -107,7 +96,7 @@ public class PlayerMove : TacticsMove
         }
     }
 
-    void CheckMouseForAttack() {
+    void GenericCheckMouse(string action) {
         if (Input.GetMouseButtonUp(0) && !IsPointerOverUIObject()) {
             SetCurrentCamera();
 
@@ -116,31 +105,60 @@ public class PlayerMove : TacticsMove
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit)) {
-                if (hit.collider.tag == "NPC" && transform.tag != "NPC") {
-                    // Get NPC gameObject
-                    GameObject t = hit.collider.gameObject;
-                    // m_attackTarget = t;
+                switch (action) {
 
-                    // Get their current tile
-                    Tile targetTile = GetTargetTile(t);
-                    // Tile endTile = FindEndTile(targetTile);
+                    case "move":
+                        if (hit.collider.tag == "Tile") {
+                            Tile t = hit.collider.GetComponent<Tile>();
 
-                    // If we are next to enemy
-                    if (targetTile.attackable && targetTile.distance == 1) {
-                        Debug.Log("Attack");
-                        Attack(t);
-                        RemoveAttackableTiles();
+                            if (t.selectable) {
+                                // move here
+                                MoveToTile(t);
+                                turnState = TurnState.Moving;
+                            }
+                        }
+                        break;
 
-                        turnState = TurnState.End;
-                    }
+                    case "attack":
+                        if (hit.collider.tag == "NPC") {
+                            GameObject t = hit.collider.gameObject;
 
-                    // Check if that tile is within our range
-                    if (targetTile.distance != 0 && targetTile.distance >= 1) {
-                        // MoveToAttack(endTile, m_attackTarget);
-                    }
+                            // Get their current tile
+                            Tile targetTile = GetTargetTile(t);
 
-                    // Debug.Log(targetTile.distance);
+                            // If we are next to enemy
+                            if (targetTile.attackable && targetTile.distance == 1) {
+                                Debug.Log("Attack");
+                                Attack(t);
+                                RemoveAttackableTiles();
 
+                                turnState = TurnState.End;
+                            }
+                        }
+                        break;
+
+                    case "skill":
+                        if (hit.collider.tag == "NPC") {
+                            GameObject t = hit.collider.gameObject;
+
+                            // Get their current tile
+                            Tile targetTile = GetTargetTile(t);
+
+                            // If we are next to enemy
+                            if (targetTile.attackable && targetTile.distance == 1) {
+                                Debug.Log("Skill");
+                                // Attack(t);
+                                UseSkill(t, "Strong Attack");
+                                // Skill logic goes here
+                                RemoveAttackableTiles();
+
+                                turnState = TurnState.End;
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
                 }
             }
         }
@@ -163,6 +181,18 @@ public class PlayerMove : TacticsMove
 
         if(playerCombat != null) {
             playerCombat.Attack(targetStats);
+        }
+    }
+
+    public override void UseSkill(GameObject target, string skillName) {
+        base.UseSkill(target, skillName);
+
+        // Debug.Log(skills[0].skillName);
+        foreach(Skill skill in skills) {
+            if (skill.skillName == skillName && m_myStats.currentMp > skill.mpCost) {
+                skill.Activate(gameObject, target);
+                m_myStats.ReduceMp(skill.mpCost);
+            }
         }
     }
 

@@ -5,8 +5,8 @@ using UnityEngine;
 public class Skill : ScriptableObject
 {
     public string skillName = "Ability";
-    public int turnCooldown = 1;
+    public int mpCost = 10;
 
     // public void Initialize(GameObject obj);
-    public virtual void Activate(GameObject parent) {}
+    public virtual void Activate(GameObject parent, GameObject target) {}
 }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad6ddeb2386800146b03c2a34dc4bc6f, type: 3}
-  m_Name: StrongAttack
+  m_Name: StrongAttackSkill
   m_EditorClassIdentifier: 
-  skillName: Strong Attack
+  skillName: Ability
   turnCooldown: 1

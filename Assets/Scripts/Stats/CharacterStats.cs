@@ -6,6 +6,8 @@ public class CharacterStats : MonoBehaviour
 {
     public int maxHealth = 100;
     public int currentHealth { get; private set; }
+    public int maxMp = 50;
+    public int currentMp { get; private set; }
     public Stat attack;
     public Stat defense;
     // public Stat evasion;
@@ -14,6 +16,7 @@ public class CharacterStats : MonoBehaviour
 
     void Awake() {
         currentHealth = maxHealth;
+        currentMp = maxMp;
     }
 
     void Update() {
@@ -31,6 +34,14 @@ public class CharacterStats : MonoBehaviour
 
         if (currentHealth <= 0) {
             Die();
+        }
+    }
+
+    public void ReduceMp(int mpCost) {
+        currentMp -= mpCost;
+
+        if (currentMp < 0) {
+            currentMp = 0;
         }
     }
 
