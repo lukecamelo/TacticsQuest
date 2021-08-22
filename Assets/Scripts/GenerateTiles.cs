@@ -25,6 +25,16 @@ public class GenerateTiles : MonoBehaviour
         }
     }
 
+    [MenuItem("Tools/Assign Highlight Script")]
+    public static void AssignHighlightScript() {
+        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+
+        foreach (GameObject t in tiles) {
+            t.AddComponent<HighlightPlus.HighlightEffect>();
+            t.AddComponent<HighlightPlus.HighlightTrigger>();
+        }
+    }
+
     static GameObject GetPrefab(string location) {
         GameObject prefab = AssetDatabase.LoadAssetAtPath(location, typeof(GameObject)) as GameObject;
 

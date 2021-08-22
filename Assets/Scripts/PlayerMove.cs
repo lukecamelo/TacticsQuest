@@ -24,33 +24,44 @@ public class PlayerMove : TacticsMove
     void Update()
     {
         Debug.DrawRay(transform.position, transform.forward, Color.green);
-
+        // HighlightPath();
         switch(turnState) {
             case TurnState.Waiting:
                 break;
-            // case TurnState.Premove:
-            //     hasMoved = false;
-            //     break;
-            case TurnState.Start:
+
+            case TurnState.ActionSelect:
                 startingTile = GetTargetTile(gameObject);
+                hasMoved = false;
+                UIManager.instance.DisplayActionSelect();
+                break;
+
+            case TurnState.Start:
+                UIManager.instance.DisplayStart();
                 // UIManager.instance.EnableTurnActionUI();
                 FindSelectableTiles();
                 CheckMouse();
                 // possibly need a function for moving unit to tile before enemy if clicking on enemy
                 break;
-            case TurnState.Move:
+
+            case TurnState.Moving:
+                UIManager.instance.DisableTurnActionUI();
                 Move();
                 hasMoved = true;
                 break;
+
             case TurnState.Attack:
+                UIManager.instance.EnableTurnActionUI();
+                UIManager.instance.DisplayAttack();
                 // Attack functions go here
                 FindAttackableTiles();
                 CheckMouseForAttack();
                 break;
+
             case TurnState.End:
                 // UIManager.instance.DisableTurnActionUI();
                 TurnManager.EndTurn();
                 break;
+                
             default:
                 break;
         }
@@ -71,8 +82,26 @@ public class PlayerMove : TacticsMove
                     if (t.selectable) {
                         // move here
                         MoveToTile(t);
-                        turnState = TurnState.Move;
+                        turnState = TurnState.Moving;
                     }
+                }
+            }
+        }
+    }
+
+    void HighlightPath() {
+        SetCurrentCamera();
+
+        Ray ray = m_currentCamera.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit)) {
+            if (hit.collider.tag == "Tile") {
+                Tile t = hit.collider.GetComponent<Tile>();
+
+                if (t.selectable) {
+                    HighlightTiles(t);
                 }
             }
         }
@@ -128,6 +157,7 @@ public class PlayerMove : TacticsMove
 
     public override void Attack(GameObject target) {
         // Call target's take damage method
+        base.Attack(target);
         CharacterStats targetStats = target.GetComponent<CharacterStats>();
         CharacterCombat playerCombat = transform.GetComponent<CharacterCombat>();
 

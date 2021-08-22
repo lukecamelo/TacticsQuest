@@ -70,11 +70,11 @@ public class TurnManager : MonoBehaviour
         list.Add(unit);
     }
 
-    public static void SkipUnitMove() {
+    public static void SetTurnStateAttack() {
         activeUnit.turnState = TurnState.Attack;
     }
 
-    public static void ResetUnitTurn() {
+    public static void SetTurnStateStart() {
         activeUnit.turnState = TurnState.Start;
     }
 

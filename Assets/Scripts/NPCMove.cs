@@ -24,6 +24,9 @@ public class NPCMove : TacticsMove
         switch(turnState) {
             case TurnState.Waiting:
                 break;
+            case TurnState.ActionSelect:
+                turnState = TurnState.Start;
+                break;
             case TurnState.Start:
                 FindNearestTarget();
                 CalculatePath();
@@ -34,11 +37,11 @@ public class NPCMove : TacticsMove
                 } else {
                     moveDelay = 1f;
                     actualTargetTile.target = true;
-                    turnState = TurnState.Move;
+                    turnState = TurnState.Moving;
                 }
 
                 break;
-            case TurnState.Move:
+            case TurnState.Moving:
                 Move();
                 break;
             case TurnState.Attack:
@@ -49,6 +52,7 @@ public class NPCMove : TacticsMove
                 } else {
                     attackDelay = 1f;
                     Attack(m_attackTarget);
+                    RemoveAttackableTiles();
                     turnState = TurnState.End;
                 }
                 break;
@@ -63,25 +67,6 @@ public class NPCMove : TacticsMove
             default:
                 break;
         }
-    }
-
-    // TODO: make this better
-    IEnumerator PreMoveActions() {
-        yield return new WaitForSeconds(1f);
-
-
-        FindNearestTarget();
-        CalculatePath();
-        FindSelectableTiles();
-
-        actualTargetTile.target = true;
-        // turnState = TurnState.Move;
-    }
-
-    IEnumerator WaitToMove() {
-        yield return new WaitForSeconds(.5f);
-
-        turnState = TurnState.Move;
     }
 
     void CalculatePath() {

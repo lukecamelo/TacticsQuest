@@ -9,6 +9,7 @@ public class Tile : MonoBehaviour
     public bool target = false;
     public bool selectable = false;
     public bool attackable = false;
+    public bool onTheWay = false;
 
     public List<Tile> adjacencyList = new List<Tile>();
     public List<Tile> attackAdjacencyList = new List<Tile>();
@@ -33,13 +34,23 @@ public class Tile : MonoBehaviour
         if (current) {
             GetComponent<Renderer>().material.color = Color.magenta;
         } else if (target) {
-            GetComponent<Renderer>().material.color = Color.green;
-        } else if (selectable) {
             GetComponent<Renderer>().material.color = Color.red;
+        } else if (onTheWay) {
+            GetComponent<Renderer>().material.color = Color.yellow;
+        } else if (selectable) {
+            GetComponent<Renderer>().material.color = Color.green;
         } else if (attackable) {
             GetComponent<Renderer>().material.color = Color.cyan;
         } else {
             GetComponent<Renderer>().material.color = Color.white;
+        }
+
+        if (selectable) {
+            GetComponent<HighlightPlus.HighlightEffect>().enabled = true;
+            GetComponent<HighlightPlus.HighlightTrigger>().enabled = true;
+        }  else {
+            GetComponent<HighlightPlus.HighlightEffect>().enabled = false;
+            GetComponent<HighlightPlus.HighlightTrigger>().enabled = false;
         }
     }
 
@@ -52,6 +63,7 @@ public class Tile : MonoBehaviour
         target = false;
         selectable = false;
         attackable = false;
+        onTheWay = false;
 
         visited = false;
         parent = null;
@@ -82,6 +94,7 @@ public class Tile : MonoBehaviour
                 if (!Physics.Raycast(tile.transform.position, Vector3.up, out hit, 1) || (tile == target)) {
                     adjacencyList.Add(tile);
                 } else if (Physics.Raycast(tile.transform.position, Vector3.up, out hit, 1)) {
+                    // TODO: change the way tiles are added to attackAdjacencyList to allow for attacks for more than one tile away
                     if (hit.collider.tag == "NPC" || hit.collider.tag == "Player") {
                         attackAdjacencyList.Add(tile);
                     }

@@ -30,17 +30,13 @@ public class UIManager : MonoBehaviour
     public GameObject player;
     public CameraController cameraController;
 
-    private Vector3 offset = new Vector3(1f, 2f, 0);
-    private bool followPlayer = false;
-    // float vanguard = 100;
-    // Responsibilites
-    
-    // Create UI elements
-    // - Turn actions (Wait/End Turn, Attack, Move)
+    // UI Buttons
+    public GameObject endTurnButton;
+    public GameObject attackButton;
+    public GameObject moveButton;
+    public GameObject undoButton;
 
-    // Enable UI elements
-    // Disable UI elements
-    // Set relative UI position
+    private Vector3 offset = new Vector3(1f, 2f, 0);
 
     void Start() {
         GameEvents.instance.onTurnEnd += OnTurnEnd;
@@ -48,18 +44,16 @@ public class UIManager : MonoBehaviour
     }
 
     void Update() {
-        if(followPlayer) {
-            turnActionPanel.transform.position = player.transform.position;
-            turnActionPanel.transform.position += offset;
+        if (player != null && player.GetComponent<PlayerMove>().hasMoved) {
+            moveButton.SetActive(false);
+            undoButton.gameObject.SetActive(true);
+        } else {
+            undoButton.gameObject.SetActive(false);
         }
     }
 
     public void EnableTurnActionUI() {
         turnActionPanel.gameObject.SetActive(true);
-        // followPlayer = true;
-
-        // turnActionPanel.transform.position = player.transform.position;
-        // turnActionPanel.transform.position += offset;
     }
 
     public void DisableTurnActionUI() {
@@ -73,7 +67,7 @@ public class UIManager : MonoBehaviour
 
     private void OnTurnStart() {
         DisplayCurrentTeam();
-        // Get the unit, if its a player, enable the UI and attach it to that player unit
+
         GameObject activeUnit = TurnManager.activeUnit.gameObject;
 
         if (activeUnit.tag == "Player") {
@@ -85,5 +79,23 @@ public class UIManager : MonoBehaviour
     private void DisplayCurrentTeam() {
         Text text = screenUICanvas.GetComponentInChildren<Text>();
         text.text = "Active Team: " + TurnManager.turnKey.Peek();
+    }
+
+    public void DisplayActionSelect() {
+        endTurnButton.gameObject.SetActive(true);
+        moveButton.gameObject.SetActive(true);
+        attackButton.gameObject.SetActive(true);
+    }
+
+    public void DisplayStart() {
+        endTurnButton.SetActive(true);
+        moveButton.SetActive(false);
+        attackButton.SetActive(true);
+    }
+
+    public void DisplayAttack() {
+        endTurnButton.SetActive(true);
+        moveButton.SetActive(true);
+        attackButton.SetActive(false);
     }
 }

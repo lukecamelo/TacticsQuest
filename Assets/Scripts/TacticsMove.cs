@@ -4,10 +4,11 @@ using UnityEngine;
 
 public enum TurnState {
     Start,
-    Move,
+    Moving,
     Attack,
     End,
-    Waiting
+    Waiting,
+    ActionSelect
 }
 
 public class TacticsMove : MonoBehaviour
@@ -16,7 +17,8 @@ public class TacticsMove : MonoBehaviour
     List<Tile> attackableTiles = new List<Tile>();
     GameObject[] tiles;
 
-    Stack<Tile> path = new Stack<Tile>();
+    public Stack<Tile> path = new Stack<Tile>();
+    public Stack<Tile> highLightPath = new Stack<Tile>();
     public Tile currentTile;
 
     public int moveRange = 5;
@@ -149,6 +151,22 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
+    public void HighlightTiles(Tile tile) {
+        Debug.Log("hello!!");
+        highLightPath.Clear();
+
+        // turnState = TurnState.Move;
+
+        Tile next = tile;
+
+        // Goes backwards from tile we want to move through and adds them to the path
+        while (next != null) {
+            next.onTheWay = true;
+            highLightPath.Push(next);
+            next = next.parent;
+        }
+    }
+
     public void MoveToTile(Tile tile) {
         // Clears the path stack (last in first out)
         path.Clear();
@@ -160,6 +178,7 @@ public class TacticsMove : MonoBehaviour
 
         // Goes backwards from tile we want to move through and adds them to the path
         while (next != null) {
+            next.onTheWay = true;
             path.Push(next);
             next = next.parent;
         }
@@ -176,6 +195,7 @@ public class TacticsMove : MonoBehaviour
         if (path.Count > 0) {
             // Gets the tile at the front of the path;
             Tile t = path.Peek();
+
             // sets target to that tile's position
             Vector3 target = t.transform.position;
 
@@ -340,22 +360,21 @@ public class TacticsMove : MonoBehaviour
     }
 
     public void BeginTurn() {
+        // dispatch turn start event
         GameEvents.instance.TurnStart();
         // turn = true;
-        turnState = TurnState.Start;
+        turnState = TurnState.ActionSelect;
     }
 
     public void EndTurn() {
+        // dispatch turn end event
         GameEvents.instance.TurnEnd();
-        // turn = false;
-        // if (transform.tag == "Player")
-        //     UIManager.instance.DisableTurnActionUI();
 
         turnState = TurnState.Waiting;
     }
 
     public virtual void Attack(GameObject target) {
-        //
+        Debug.Log("Attakkkkkk");
     }
 
     protected Tile FindLowestF(List<Tile> list) {
