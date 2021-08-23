@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e9253636bf2648bd813257f451f8486, type: 3}
-  m_Name: Highlight Plus Profile
+  m_Name: SelectedUnitHighlight
   m_EditorClassIdentifier: 
   effectGroup: 0
   effectGroupLayer:
@@ -25,10 +25,10 @@ MonoBehaviour:
   fadeOutDuration: 0
   constantWidth: 1
   overlay: 0.5
-  overlayColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  overlayColor: {r: 0.3048456, g: 1, b: 0.015686274, a: 1}
   overlayAnimationSpeed: 1
-  overlayMinIntensity: 0.5
-  overlayBlending: 1
+  overlayMinIntensity: 0.317
+  overlayBlending: 0.634
   outline: 1
   outlineColor: {r: 0, g: 0, b: 0, a: 1}
   outlineWidth: 0.45

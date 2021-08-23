@@ -91,11 +91,18 @@ public class TurnManager : MonoBehaviour
     public static void UndoUnitMove() {
         PlayerMove playerMove = activeUnit.GetComponent<PlayerMove>();
 
-        playerMove.transform.position = playerMove.startingTile.transform.position;
-        playerMove.transform.position += new Vector3(0f, 1f, 0f);
+        if (playerMove.hasMoved) {
+            playerMove.transform.position = playerMove.startingTile.transform.position;
+            playerMove.transform.position += new Vector3(0f, 1f, 0f);
 
-        activeUnit.CenterOnCurrentTile();
-        activeUnit.turnState = TurnState.Start;
+            activeUnit.CenterOnCurrentTile();
+
+            playerMove.hasMoved = false;
+
+            playerMove.ClearAllTiles();
+        }
+
+        activeUnit.turnState = TurnState.ActionSelect;
     }
 
     public static void RemoveUnit(TacticsMove unit) {

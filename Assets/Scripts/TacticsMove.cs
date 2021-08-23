@@ -34,6 +34,8 @@ public class TacticsMove : MonoBehaviour
     protected GameObject m_attackTarget;
     public TurnState turnState = TurnState.Waiting;
 
+    public GameObject activeUnitArrow;
+
     float halfHeight = 0;
 
     // Jumping state machine
@@ -234,6 +236,13 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
+    // TODO: kinda hacky, find a way around this
+    // exists only for making back button work properly
+    public void ClearAllTiles() {
+        RemoveSelectableTiles();
+        RemoveAttackableTiles();
+    }
+
     protected void RemoveSelectableTiles() {
 
         if (currentTile != null) {
@@ -361,16 +370,14 @@ public class TacticsMove : MonoBehaviour
     }
 
     public void BeginTurn() {
-        // dispatch turn start event
+        activeUnitArrow.SetActive(true);
         GameEvents.instance.TurnStart();
-        // turn = true;
         turnState = TurnState.ActionSelect;
     }
 
     public void EndTurn() {
-        // dispatch turn end event
+        activeUnitArrow.SetActive(false);
         GameEvents.instance.TurnEnd();
-
         turnState = TurnState.Waiting;
     }
 

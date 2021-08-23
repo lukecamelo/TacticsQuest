@@ -34,6 +34,7 @@ public class PlayerMove : TacticsMove
 
             case TurnState.ActionSelect:
                 startingTile = GetTargetTile(gameObject);
+
                 hasMoved = false;
                 UIManager.instance.DisplayActionSelect();
                 break;
@@ -56,16 +57,19 @@ public class PlayerMove : TacticsMove
             case TurnState.Attack:
                 UIManager.instance.EnableTurnActionUI();
                 UIManager.instance.DisplayAttack();
-                // Attack functions go here
+
                 FindAttackableTiles();
-                // CheckMouseForAttack();
+
                 GenericCheckMouse("attack");
                 break;
 
             case TurnState.Skill:
                 FindAttackableTiles();
-                // CheckMouseForSkill();
                 GenericCheckMouse("skill");
+
+                // TODO: make this 
+                // FindTargetsInRange("skill name");
+
                 break;
 
             case TurnState.End:
