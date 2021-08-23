@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad6ddeb2386800146b03c2a34dc4bc6f, type: 3}
   m_Name: StrongAttackSkill
   m_EditorClassIdentifier: 
-  skillName: Ability
-  turnCooldown: 1
+  skillName: Strong Attack
+  mpCost: 10
+  damageMultiplier: 7

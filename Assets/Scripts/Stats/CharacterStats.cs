@@ -1,22 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterStats : MonoBehaviour
 {
-    public int maxHealth = 100;
-    public int currentHealth { get; private set; }
+    public float maxHealth = 100;
+    public float currentHealth { get; private set; }
     public int maxMp = 50;
     public int currentMp { get; private set; }
     public Stat attack;
     public Stat defense;
-    // public Stat evasion;
+    
+    public Slider healthBar;
 
     public GameObject damageTextPrefab;
 
     void Awake() {
         currentHealth = maxHealth;
         currentMp = maxMp;
+
+        healthBar = GetComponentInChildren<Slider>();
+        healthBar.value = CalculateHealth();
     }
 
     void Update() {
@@ -29,7 +34,8 @@ public class CharacterStats : MonoBehaviour
         damage = Mathf.Clamp(damage, 0, int.MaxValue);
 
         currentHealth -= damage;
-
+        healthBar.value = CalculateHealth();
+        
         Debug.Log(transform.name + " takes " + damage + " damage!");
 
         if (currentHealth <= 0) {
@@ -47,5 +53,10 @@ public class CharacterStats : MonoBehaviour
 
     public virtual void Die() {
         Debug.Log(transform.name + " died!");
+    }
+
+    float CalculateHealth() {
+        Debug.Log("Calculating health for: " + transform.name);
+        return currentHealth / maxHealth;
     }
 }
